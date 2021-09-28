@@ -4,6 +4,17 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Matthew/AndroidStudioProjects/MP/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.3828125" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/drawable/ic_baseline_fast_forward_50.xml" value="0.3828125" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/drawable/ic_baseline_fast_rewind_50.xml" value="0.3828125" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/drawable/ic_baseline_play_arrow_50.xml" value="0.3828125" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/drawable/ic_baseline_skip_next_50.xml" value="0.3828125" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/drawable/ic_baseline_skip_previous_50.xml" value="0.3828125" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/drawable/ic_launcher_background.xml" value="0.3828125" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/drawable/song_icon.xml" value="0.3828125" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/layout/activity_main.xml" value="0.2957427536231884" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/layout/activity_play.xml" value="0.25" />
+        <entry key="..\:/Users/entei/StudioProjects/group21_final_project/app/src/main/res/layout/song_item.xml" value="0.25" />
       </map>
     </option>
   </component>
@@ -12,5 +23,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.22" />
+      </ProjectState>
+    </option>
   </component>
 </project>
