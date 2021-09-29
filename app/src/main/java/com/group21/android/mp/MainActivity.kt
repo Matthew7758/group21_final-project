@@ -85,7 +85,6 @@ class MainActivity : AppCompatActivity() {
                         TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))
-            //TODO: songImage loading from path URI.
             val art: Bitmap? = getAlbumImage(song.path)
             if(art !== null)
                 songImage.setImageBitmap(art)
