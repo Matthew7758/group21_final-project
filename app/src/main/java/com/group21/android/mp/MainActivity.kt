@@ -6,15 +6,16 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.CancellationSignal
 import android.provider.MediaStore
 import android.util.Log
-import android.util.Size
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -25,20 +26,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.concurrent.TimeUnit
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
-import androidx.core.net.toUri
-import java.io.IOException
-import java.nio.file.Files.size
-import android.graphics.BitmapFactory
-
-import android.media.MediaMetadataRetriever
-
-
-
-
-
-
 
 
 private const val TAG = "MainActivity"
@@ -67,32 +54,37 @@ class MainActivity : AppCompatActivity() {
         songRecyclerView.adapter = adapter
     }
 
-    private inner class SongHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener {
+    private inner class SongHolder(view: View) : RecyclerView.ViewHolder(view),
+        View.OnClickListener {
         private lateinit var song: Song
         val songImage: ImageView = itemView.findViewById(R.id.songImage)
         val songName: TextView = itemView.findViewById(R.id.songName)
         val songDuration: TextView = itemView.findViewById(R.id.songDuration)
+
         init {
             itemView.setOnClickListener(this)
         }
+
         fun bind(song: Song) {
             this.song = song
             songName.text = song.name
             val millis = song.duration.toLong()
-            songDuration.text =  String.format("%02d:%02d:%02d",
+            songDuration.text = String.format(
+                "%02d:%02d:%02d",
                 TimeUnit.MILLISECONDS.toHours(millis),
                 TimeUnit.MILLISECONDS.toMinutes(millis) -
                         TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
+            )
             val art: Bitmap? = getAlbumImage(song.path)
-            if(art !== null)
+            if (art !== null)
                 songImage.setImageBitmap(art)
 
         }
 
         override fun onClick(v: View?) {
-            Toast.makeText(applicationContext,"Song ${song.name} selected!", LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, "Song ${song.name} selected!", LENGTH_SHORT).show()
         }
     }
 
@@ -103,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         return if (data != null) BitmapFactory.decodeByteArray(data, 0, data.size) else null
     }
 
-    private inner class SongAdapter(var songs: List<Song>?): RecyclerView.Adapter<SongHolder>() {
+    private inner class SongAdapter(var songs: List<Song>?) : RecyclerView.Adapter<SongHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongHolder {
             val view = layoutInflater.inflate(R.layout.song_item, parent, false)
             return SongHolder(view)
@@ -133,17 +125,29 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.AudioColumns.DURATION
         )
         // if want fetch all files
+        val mimeType1 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mp3")
+        val mimeType2 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("m4a")
+        val mimeType3 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("flac")
+        val mimeType4 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("aac")
+        val mimeType5 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("wav")
+        val mimeType6 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("ogg")
+        val selectionMimeType =
+            MediaStore.Audio.AudioColumns.MIME_TYPE + "=? OR " + MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR " + MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR "+ MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR "+ MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR "+ MediaStore.Audio.AudioColumns.MIME_TYPE + "=?"
+        val selectionArgsMp3 = arrayOf(mimeType1, mimeType2, mimeType3, mimeType4, mimeType5, mimeType6)
+
+
         val cursor: Cursor? = context.contentResolver.query(
             uri,
             projection,
-            null,
-            null,
+            selectionMimeType,
+            selectionArgsMp3,
             null
         )
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 val audioModel = Song()
                 val path: String = cursor.getString(0)
+                Log.d(TAG, path)
                 val name: String = cursor.getString(1)
                 val album: String = cursor.getString(2)
                 val artist: String = cursor.getString(3)
@@ -156,7 +160,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("$TAG Name :$name", " Album :$album")
                 Log.d("$TAG Path :$path", " Artist :$artist")
                 Log.d(TAG, duration)
-                Log.d(TAG,path)
+                Log.d(TAG, path)
                 tempAudioList.add(audioModel)
             }
             cursor.close()
