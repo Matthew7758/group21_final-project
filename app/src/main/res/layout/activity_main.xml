@@ -6,12 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/musicList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/musicList"
-        android:dividerHeight="1dp"
-        android:divider="@android:color/holo_red_dark"
-        android:padding="4dp"/>
+        android:padding="4dp" />
 
 </RelativeLayout>

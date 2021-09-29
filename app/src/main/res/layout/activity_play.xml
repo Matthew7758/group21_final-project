@@ -40,9 +40,9 @@
             android:id="@+id/songStartTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
+            android:layout_marginStart="15dp"
             android:singleLine="true"
-            android:text="@string/TimeDefault"
+            android:text="@string/Time_Default"
             android:textSize="20sp" />
 
         <SeekBar
@@ -56,9 +56,9 @@
             android:id="@+id/songEndTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="25dp"
+            android:layout_marginEnd="15dp"
             android:singleLine="true"
-            android:text="@string/TimeDefault"
+            android:text="@string/Time_Default"
             android:textSize="20sp" />
 
     </LinearLayout>
