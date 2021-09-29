@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var songRecyclerView: RecyclerView
     private var adapter: SongAdapter? = SongAdapter(emptyList())
     lateinit var resolver: ContentResolver
-    private  var songList: List<Song>? = null
+    private var songList: List<Song>? = null
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity() {
 
         fun bind(song: Song) {
             this.song = song
+            songName.isSelected = true
             songName.text = song.name
             val millis = song.duration.toLong()
             songDuration.text = String.format(
@@ -87,15 +88,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onClick(v: View?) {
-            //Toast.makeText(applicationContext, "Song ${song.name} selected!", LENGTH_SHORT).show()
-            //Log.d(TAG, "Index = ${songList!!.indexOf(song)}")
-            /*Intent intent = new Intent(getApplicationContext(), PlayerActivity.class);
-                intent.putExtra("songs", mySongs);
-                intent.putExtra("songname", songName);
-                intent.putExtra("pos", i);
-                startActivity(intent);*/
             val intent = Intent(applicationContext, PlayActivity::class.java)
-            intent.putExtra("songs", Gson().toJson(songList))
+            var gson: Gson = Gson()
+            var jsonString = gson.toJson(songList)
+
+            intent.putExtra("songList", jsonString)
             intent.putExtra("songName", song.name)
             intent.putExtra("position",songList!!.indexOf(song))
             startActivity(intent)

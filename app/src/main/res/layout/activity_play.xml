@@ -18,7 +18,8 @@
         android:singleLine="true"
         android:text="@string/song_name"
         android:textAlignment="center"
-        android:textSize="36sp" />
+        android:textSize="30sp"
+        android:scrollHorizontally="true" />
 
     <ImageView
         android:id="@+id/songImagePlay"
