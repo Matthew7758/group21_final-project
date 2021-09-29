@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.*
@@ -31,7 +32,7 @@ class PlayActivity : AppCompatActivity() {
     private lateinit var songEndTime: TextView
     private lateinit var seekbar: SeekBar
     private lateinit var barVisualizer: BarVisualizer
-    private var mediaPlayer: MediaPlayer? = null
+    var mediaPlayer: MediaPlayer? = null
     var updateSeekBar: Thread? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,16 +52,18 @@ class PlayActivity : AppCompatActivity() {
 
         //If songs currently playing.
         if (mediaPlayer != null) {
-            mediaPlayer!!.start()
-            mediaPlayer!!.release()
+            mediaPlayer!!.start();
+            mediaPlayer!!.release();
         }
+
+
         //Get intent
         val intent = intent
         val bundle = intent.extras
         val gson = Gson()
         val jsonString = bundle?.getString("songList")
         val listOfSongType: Type = object : TypeToken<List<Song?>?>() {}.type
-        var songs : ArrayList<Song> = gson.fromJson(jsonString, listOfSongType)
+        val songs : ArrayList<Song> = gson.fromJson(jsonString, listOfSongType)
         for(song in songs)
             playViewModel.songList.add(song)
         //Log.d(TAG, songList.toString())
@@ -75,6 +78,10 @@ class PlayActivity : AppCompatActivity() {
         val songCover: Bitmap? = getAlbumImage(playViewModel.songList[playViewModel.position].path)
         if(songCover!=null)
             songImagePlay.setImageBitmap(songCover)
+
+        //Get media player
+        mediaPlayer = MediaPlayer.create(applicationContext, Uri.parse(playViewModel.songList[playViewModel.position].path))
+        mediaPlayer?.start()
     }
 
     private fun getAlbumImage(path: String): Bitmap? {
@@ -82,5 +89,10 @@ class PlayActivity : AppCompatActivity() {
         mmr.setDataSource(path)
         val data = mmr.embeddedPicture
         return if (data != null) BitmapFactory.decodeByteArray(data, 0, data.size) else null
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        mediaPlayer!!.stop()
     }
 }
