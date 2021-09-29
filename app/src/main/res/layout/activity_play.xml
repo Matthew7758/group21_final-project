@@ -77,7 +77,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/rewind"
-            android:src="@drawable/ic_baseline_fast_rewind_50" />
+            android:src="@drawable/ic_baseline_replay_10_40" />
 
         <ImageButton
             android:id="@+id/skipPreviousButton"
@@ -106,7 +106,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/fast_forward"
-            android:src="@drawable/ic_baseline_fast_forward_50" />
+            android:src="@drawable/ic_baseline_forward_10_40" />
     </LinearLayout>
 
     <RelativeLayout
@@ -115,12 +115,12 @@
         android:layout_gravity="bottom"
         android:gravity="bottom">
 
-        <com.gauravk.audiovisualizer.visualizer.BarVisualizer xmlns:custom="http://schemas.android.com/apk/res-auto"
+        <com.gauravk.audiovisualizer.visualizer.WaveVisualizer xmlns:custom="http://schemas.android.com/apk/res-auto"
             android:id="@+id/visualizerPlay"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
-            custom:avColor="@color/av_red"
+            custom:avColor="#AC2B37"
             custom:avDensity="0.8"
             custom:avSpeed="normal"
             custom:avType="fill" />

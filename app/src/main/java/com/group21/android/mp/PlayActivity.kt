@@ -5,15 +5,17 @@ import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.*
+import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.gauravk.audiovisualizer.visualizer.BarVisualizer
+import com.gauravk.audiovisualizer.visualizer.WaveVisualizer
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
-import java.util.ArrayList
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 private const val TAG = "PlayActivity"
 
@@ -31,7 +33,7 @@ class PlayActivity : AppCompatActivity() {
     private lateinit var songStartTime: TextView
     private lateinit var songEndTime: TextView
     private lateinit var seekbar: SeekBar
-    private lateinit var barVisualizer: BarVisualizer
+    private lateinit var waveVisualizer: WaveVisualizer
     var mediaPlayer: MediaPlayer? = null
     var updateSeekBar: Thread? = null
 
@@ -48,12 +50,12 @@ class PlayActivity : AppCompatActivity() {
         songStartTime = findViewById(R.id.songStartTime)
         songEndTime = findViewById(R.id.songEndTime)
         seekbar = findViewById(R.id.seekbar)
-        barVisualizer = findViewById(R.id.visualizerPlay)
+        waveVisualizer = findViewById(R.id.visualizerPlay)
 
         //If songs currently playing.
         if (mediaPlayer != null) {
-            mediaPlayer!!.start();
-            mediaPlayer!!.release();
+            mediaPlayer!!.start()
+            mediaPlayer!!.release()
         }
 
 
@@ -63,8 +65,8 @@ class PlayActivity : AppCompatActivity() {
         val gson = Gson()
         val jsonString = bundle?.getString("songList")
         val listOfSongType: Type = object : TypeToken<List<Song?>?>() {}.type
-        val songs : ArrayList<Song> = gson.fromJson(jsonString, listOfSongType)
-        for(song in songs)
+        val songs: ArrayList<Song> = gson.fromJson(jsonString, listOfSongType)
+        for (song in songs)
             playViewModel.songList.add(song)
         //Log.d(TAG, songList.toString())
         playViewModel.songName = bundle?.getString("songName")!!
@@ -76,23 +78,144 @@ class PlayActivity : AppCompatActivity() {
         songNamePlay.isSelected = true
         songNamePlay.text = playViewModel.songName
         val songCover: Bitmap? = getAlbumImage(playViewModel.songList[playViewModel.position].path)
-        if(songCover!=null)
+        if (songCover != null)
             songImagePlay.setImageBitmap(songCover)
 
         //Get media player
-        mediaPlayer = MediaPlayer.create(applicationContext, Uri.parse(playViewModel.songList[playViewModel.position].path))
+        mediaPlayer = MediaPlayer.create(
+            applicationContext,
+            Uri.parse(playViewModel.songList[playViewModel.position].path)
+        )
         mediaPlayer?.start()
+        getSongEndTime()
+        showVisualizer()
+
+
+        //Thread to update the seekBar while playing song
+        updateSeekBar = object : Thread() {
+            override fun run() {
+                val fullTime: Int = mediaPlayer!!.duration
+                var currentTime = 0
+                while (currentTime < fullTime) {
+                    try {
+                        sleep(500)
+                        currentTime = mediaPlayer!!.currentPosition
+                        seekbar.progress = currentTime
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                    } catch (e: IllegalStateException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+        seekbar.max = mediaPlayer!!.duration
+        (updateSeekBar as Thread).start()
+
+        seekbar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                mediaPlayer!!.seekTo(seekBar.progress)
+            }
+        })
+
+        playButton.setOnClickListener {
+            if (mediaPlayer!!.isPlaying) {
+                playButton.setImageResource(R.drawable.ic_baseline_play_arrow_50)
+                mediaPlayer!!.pause()
+            } else {
+                playButton.setImageResource(R.drawable.ic_baseline_pause_50)
+                mediaPlayer!!.start()
+            }
+        }
+
+        rewindButton.setOnClickListener {
+            if (mediaPlayer!!.isPlaying)
+                mediaPlayer!!.seekTo(mediaPlayer!!.currentPosition - 10000)
+        }
+        fastForwardButton.setOnClickListener {
+            if (mediaPlayer!!.isPlaying)
+                mediaPlayer!!.seekTo(mediaPlayer!!.currentPosition + 10000)
+        }
+        skipPreviousButton.setOnClickListener {
+            mediaPlayer!!.stop()
+            mediaPlayer!!.release()
+
+            playViewModel.position = ((playViewModel.position-1)%playViewModel.songList.size)
+            if(playViewModel.position < 0)
+                playViewModel.position = playViewModel.songList.size - 1
+            val uri: Uri = Uri.parse(playViewModel.songList[playViewModel.position].path)
+            mediaPlayer = MediaPlayer.create(applicationContext,uri)
+            playViewModel.songName = playViewModel.songList[playViewModel.position].name
+            songNamePlay.text = playViewModel.songName
+            val bitmap: Bitmap? = getAlbumImage(playViewModel.songList[playViewModel.position].path)
+            if(bitmap!=null)
+                songImagePlay.setImageBitmap(bitmap)
+            else
+                songImagePlay.setImageResource(R.drawable.ic_baseline_music_note_50)
+            mediaPlayer!!.start()
+            showVisualizer()
+        }
+
+        skipNextButton.setOnClickListener {
+            mediaPlayer!!.stop()
+            mediaPlayer!!.release()
+
+            playViewModel.position = ((playViewModel.position+1)%playViewModel.songList.size)
+            if(playViewModel.position > playViewModel.songList.size)
+                playViewModel.position = 0
+            val uri: Uri = Uri.parse(playViewModel.songList[playViewModel.position].path)
+            mediaPlayer = MediaPlayer.create(applicationContext,uri)
+            playViewModel.songName = playViewModel.songList[playViewModel.position].name
+            songNamePlay.text = playViewModel.songName
+            val bitmap: Bitmap? = getAlbumImage(playViewModel.songList[playViewModel.position].path)
+            if(bitmap!=null)
+                songImagePlay.setImageBitmap(bitmap)
+            else
+                songImagePlay.setImageResource(R.drawable.ic_baseline_music_note_50)
+            mediaPlayer!!.start()
+            showVisualizer()
+        }
     }
 
-    private fun getAlbumImage(path: String): Bitmap? {
-        val mmr = MediaMetadataRetriever()
-        mmr.setDataSource(path)
-        val data = mmr.embeddedPicture
-        return if (data != null) BitmapFactory.decodeByteArray(data, 0, data.size) else null
-    }
+        private fun showVisualizer() {
+            val id = mediaPlayer!!.audioSessionId
+            if (id != -1)
+                waveVisualizer.setAudioSessionId(id)
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        mediaPlayer!!.stop()
+        }
+
+        private fun getAlbumImage(path: String): Bitmap? {
+            val mmr = MediaMetadataRetriever()
+            mmr.setDataSource(path)
+            val data = mmr.embeddedPicture
+            return if (data != null) BitmapFactory.decodeByteArray(data, 0, data.size) else null
+        }
+
+        override fun onBackPressed() {
+            super.onBackPressed()
+            mediaPlayer!!.stop()
+        }
+
+        private fun getSongEndTime() {
+            songEndTime.text = getTimeString(mediaPlayer!!.duration)
+        }
+
+        private fun getTimeString(time: Int): String {
+            val millis: Long = time.toLong()
+            return String.format(
+                "%02d:%02d:%02d",
+                TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) -
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
+                TimeUnit.MILLISECONDS.toSeconds(millis) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
+            )
+        }
+
+        override fun onDestroy() {
+            super.onDestroy()
+            waveVisualizer.release()
+        }
     }
-}
