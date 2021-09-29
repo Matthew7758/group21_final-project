@@ -1,14 +1,18 @@
 package com.group21.android.mp
 
 import android.Manifest
+import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -21,6 +25,20 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.concurrent.TimeUnit
+import androidx.annotation.NonNull
+import androidx.annotation.Nullable
+import androidx.core.net.toUri
+import java.io.IOException
+import java.nio.file.Files.size
+import android.graphics.BitmapFactory
+
+import android.media.MediaMetadataRetriever
+
+
+
+
+
+
 
 
 private const val TAG = "MainActivity"
@@ -28,6 +46,7 @@ private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
     private lateinit var songRecyclerView: RecyclerView
     private var adapter: SongAdapter? = SongAdapter(emptyList())
+    lateinit var resolver: ContentResolver
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         songRecyclerView = this.findViewById(R.id.musicList) as RecyclerView
         songRecyclerView.layoutManager = LinearLayoutManager(applicationContext)
         songRecyclerView.adapter = adapter
+
         checkPerms()
         Toast.makeText(applicationContext, "Permissions granted!", LENGTH_SHORT).show()
         val songList: List<Song>? = getAllAudioFromDevice(applicationContext)
@@ -66,12 +86,22 @@ class MainActivity : AppCompatActivity() {
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))
             //TODO: songImage loading from path URI.
+            val art: Bitmap? = getAlbumImage(song.path)
+            if(art !== null)
+                songImage.setImageBitmap(art)
 
         }
 
         override fun onClick(v: View?) {
             Toast.makeText(applicationContext,"Song ${song.name} selected!", LENGTH_SHORT).show()
         }
+    }
+
+    private fun getAlbumImage(path: String): Bitmap? {
+        val mmr = MediaMetadataRetriever()
+        mmr.setDataSource(path)
+        val data = mmr.embeddedPicture
+        return if (data != null) BitmapFactory.decodeByteArray(data, 0, data.size) else null
     }
 
     private inner class SongAdapter(var songs: List<Song>?): RecyclerView.Adapter<SongHolder>() {
