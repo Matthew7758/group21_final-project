@@ -3,6 +3,7 @@ package com.group21.android.mp
 import android.Manifest
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
@@ -25,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import java.util.concurrent.TimeUnit
 
 
@@ -34,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var songRecyclerView: RecyclerView
     private var adapter: SongAdapter? = SongAdapter(emptyList())
     lateinit var resolver: ContentResolver
+    private  var songList: List<Song>? = null
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
         checkPerms()
         Toast.makeText(applicationContext, "Permissions granted!", LENGTH_SHORT).show()
-        val songList: List<Song>? = getAllAudioFromDevice(applicationContext)
+        getAllAudioFromDevice(applicationContext)
         displaySongs(songList)
     }
 
@@ -84,7 +87,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onClick(v: View?) {
-            Toast.makeText(applicationContext, "Song ${song.name} selected!", LENGTH_SHORT).show()
+            //Toast.makeText(applicationContext, "Song ${song.name} selected!", LENGTH_SHORT).show()
+            //Log.d(TAG, "Index = ${songList!!.indexOf(song)}")
+            /*Intent intent = new Intent(getApplicationContext(), PlayerActivity.class);
+                intent.putExtra("songs", mySongs);
+                intent.putExtra("songname", songName);
+                intent.putExtra("pos", i);
+                startActivity(intent);*/
+            val intent = Intent(applicationContext, PlayActivity::class.java)
+            intent.putExtra("songs", Gson().toJson(songList))
+            intent.putExtra("songName", song.name)
+            intent.putExtra("position",songList!!.indexOf(song))
+            startActivity(intent)
         }
     }
 
@@ -114,7 +128,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun getAllAudioFromDevice(context: Context): List<Song>? {
+    private fun getAllAudioFromDevice(context: Context) {
         val tempAudioList: MutableList<Song> = ArrayList()
         val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val projection = arrayOf(
@@ -132,8 +146,9 @@ class MainActivity : AppCompatActivity() {
         val mimeType5 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("wav")
         val mimeType6 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("ogg")
         val selectionMimeType =
-            MediaStore.Audio.AudioColumns.MIME_TYPE + "=? OR " + MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR " + MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR "+ MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR "+ MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR "+ MediaStore.Audio.AudioColumns.MIME_TYPE + "=?"
-        val selectionArgsMp3 = arrayOf(mimeType1, mimeType2, mimeType3, mimeType4, mimeType5, mimeType6)
+            MediaStore.Audio.AudioColumns.MIME_TYPE + "=? OR " + MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR " + MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR " + MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR " + MediaStore.Audio.AudioColumns.MIME_TYPE + "=?" + "=? OR " + MediaStore.Audio.AudioColumns.MIME_TYPE + "=?"
+        val selectionArgsMp3 =
+            arrayOf(mimeType1, mimeType2, mimeType3, mimeType4, mimeType5, mimeType6)
 
 
         val cursor: Cursor? = context.contentResolver.query(
@@ -165,7 +180,8 @@ class MainActivity : AppCompatActivity() {
             }
             cursor.close()
         }
-        return tempAudioList
+        songList = tempAudioList
+        return
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
