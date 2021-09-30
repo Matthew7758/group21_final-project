@@ -15,3 +15,10 @@ class ExampleUnitTest {
         assertEquals(4, 2 + 2)
     }
 }
+class SongTest {
+    @Test
+    fun songSetCorrect() {
+        val song: Song = Song("SongName", "Kidz Bop 6969", "Obama", "/emulated/storage/0/Music/test.mp3","60000")
+        assertEquals(song, Song("SongName", "Kidz Bop 6969", "Obama", "/emulated/storage/0/Music/test.mp3","60000"))
+    }
+}
