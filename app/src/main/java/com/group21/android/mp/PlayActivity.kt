@@ -1,5 +1,6 @@
 package com.group21.android.mp
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.gauravk.audiovisualizer.visualizer.WaveVisualizer
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.io.File
 import java.lang.reflect.Type
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -52,9 +54,10 @@ class PlayActivity : AppCompatActivity() {
         seekbar = findViewById(R.id.seekbar)
         waveVisualizer = findViewById(R.id.visualizerPlay)
 
+
         //If songs currently playing.
         if (mediaPlayer != null) {
-            mediaPlayer!!.start()
+            mediaPlayer!!.stop()
             mediaPlayer!!.release()
         }
 
@@ -86,6 +89,7 @@ class PlayActivity : AppCompatActivity() {
             applicationContext,
             Uri.parse(playViewModel.songList[playViewModel.position].path)
         )
+        saveFileOp()
         mediaPlayer?.start()
         getSongEndTime()
         showVisualizer()
@@ -154,6 +158,7 @@ class PlayActivity : AppCompatActivity() {
                 songImagePlay.setImageBitmap(bitmap)
             else
                 songImagePlay.setImageResource(R.drawable.ic_baseline_music_note_50)
+            saveFileOp()
             mediaPlayer!!.start()
             showVisualizer()
         }
@@ -174,12 +179,29 @@ class PlayActivity : AppCompatActivity() {
                 songImagePlay.setImageBitmap(bitmap)
             else
                 songImagePlay.setImageResource(R.drawable.ic_baseline_music_note_50)
+            saveFileOp()
             mediaPlayer!!.start()
             showVisualizer()
         }
     }
 
-        private fun showVisualizer() {
+    private fun saveFileOp() {
+        val filename = "save.txt"
+        val file = File(applicationContext.filesDir,filename)
+        if(file.exists()) {
+            file.delete()
+            applicationContext.openFileOutput(filename, Context.MODE_PRIVATE).use {
+                it.write(playViewModel.songList[playViewModel.position].path.toByteArray())
+            }
+        }
+        else {
+            applicationContext.openFileOutput(filename, Context.MODE_PRIVATE).use {
+                it.write(playViewModel.songList[playViewModel.position].path.toByteArray())
+            }
+        }
+    }
+
+    private fun showVisualizer() {
             val id = mediaPlayer!!.audioSessionId
             if (id != -1)
                 waveVisualizer.setAudioSessionId(id)
@@ -195,6 +217,10 @@ class PlayActivity : AppCompatActivity() {
 
         override fun onBackPressed() {
             super.onBackPressed()
+            val filename = "save.txt"
+            val file = File(applicationContext.filesDir,filename)
+            if(file.exists())
+                file.delete()
             mediaPlayer!!.stop()
         }
 

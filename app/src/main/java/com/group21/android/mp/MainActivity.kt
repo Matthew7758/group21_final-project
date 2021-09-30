@@ -27,6 +27,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
+import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
 
@@ -47,8 +49,35 @@ class MainActivity : AppCompatActivity() {
         songRecyclerView.adapter = adapter
 
         checkPerms()
-        Toast.makeText(applicationContext, "Permissions granted!", LENGTH_SHORT).show()
         getAllAudioFromDevice(applicationContext)
+        //Toast.makeText(applicationContext, "Permissions granted!", LENGTH_SHORT).show()
+        val filename = "save.txt"
+        val file = File(applicationContext.filesDir,filename)
+        if(file.exists()) {
+            Log.d(TAG,"FILE EXISTS")
+            val fileContent = applicationContext.openFileInput(filename).bufferedReader().useLines {
+                lines ->
+                lines.fold("") {some, text ->
+                    "$some$text"
+                }
+            }
+            Log.d(TAG, "FILE CONTENTS = $fileContent")
+            //Toast.makeText(applicationContext,"FILE CONTENTS = $fileContent", LENGTH_SHORT).show()
+            val songFile = File(fileContent)
+            if(songFile.exists()) {
+                //Toast.makeText(applicationContext,"SONG $fileContent FOUND!", LENGTH_SHORT).show()
+                Log.d(TAG, "SONG FILE $fileContent EXISTS")
+                val intent = Intent(applicationContext, PlayActivity::class.java)
+                val gson: Gson = Gson()
+                val jsonString = gson.toJson(songList)
+                val song: Song? = songList!!.find {it.path == fileContent}
+
+                intent.putExtra("songList", jsonString)
+                intent.putExtra("songName", song!!.name)
+                intent.putExtra("position",songList!!.indexOf(song))
+                startActivity(intent)
+            }
+        }
         displaySongs(songList)
     }
 
@@ -89,8 +118,8 @@ class MainActivity : AppCompatActivity() {
 
         override fun onClick(v: View?) {
             val intent = Intent(applicationContext, PlayActivity::class.java)
-            var gson: Gson = Gson()
-            var jsonString = gson.toJson(songList)
+            val gson: Gson = Gson()
+            val jsonString = gson.toJson(songList)
 
             intent.putExtra("songList", jsonString)
             intent.putExtra("songName", song.name)
