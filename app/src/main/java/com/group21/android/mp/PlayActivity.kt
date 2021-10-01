@@ -124,6 +124,7 @@ class PlayActivity : AppCompatActivity(), ShakeDetector.Listener {
                         sleep(500)
                         currentTime = mediaPlayer!!.currentPosition
                         seekbar.progress = currentTime
+                        runOnUiThread { songStartTime.text = getTimeString(currentTime) }
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
                     } catch (e: IllegalStateException) {
