@@ -164,7 +164,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getAlbumImage(path: String): Bitmap? {
+    fun getAlbumImage(path: String): Bitmap? {
         val mmr = MediaMetadataRetriever()
         mmr.setDataSource(path)
         val data = mmr.embeddedPicture
