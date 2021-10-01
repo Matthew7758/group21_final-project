@@ -20,7 +20,7 @@ Currently the application only supports files on LOCAL storage. Any files on the
 
 Design Achievements:
 In terms of a design achievement we made a button that disables itself if test files currently exist. We also implemented dynamically loading images from files into views which we haven’t done in previous assignments. This should be considered a design achievement as it makes the app layout nicer by allowing users to download a file once, then never again.
-The second design achievement we did was creating a functional status bar. This element wasn’t used in previous assignments and contributes to this application by providing finer control over the song being played back. This should count as a design achievement as it was a completely new function that was nonexistent in prior projects and required research to implement.
+The second design achievement we did was creating a functional status bar. This element wasn’t used in previous assignments and contributes to this application by providing finer control over the song being played back. This should count as a design achievement as it was a completely new function that was nonexistent in prior projects and required research to implement. It also required the use of threading and sub functions to update the UI from within a thread without crashing the system.
 A third design achievement we would argue for is the use of CardViews in the recycler view to make nicer views for each song. This neatly groups all the information per song into a single box with borders. This is new as we have not used CardViews in other projects.
 
 Technical Achievements:
