@@ -15,8 +15,10 @@ How we accomplished each task:
 4. Network: We used android's DownloadManager to download a test file to the device. This uses the network and writes a file called test.mp3 to the Music directory. To test this, open the app for the first time, click the download button, then close the app. Relaunch the app and check to see if the song Impact Moderato is there.
 
 NOTES ON IMPLEMENTATION:
+REQUIRES AN EMULATED DEVICE RUNNING API 30
 If the song Impact Moderato does not show up, it may be possible that Android's MediaStorage hasn't indexed it yet. Either give the device time to index, or try rebooting the device.
 Currently the application only supports files on LOCAL storage. Any files on the SD card will display, but will not be able to play because of how scoped storage works on Android 10+
+Place ALL mp3 files in /storage/emulated/0/Music
 
 Design Achievements:
 In terms of a design achievement we made a button that disables itself if test files currently exist. We also implemented dynamically loading images from files into views which we haven’t done in previous assignments. This should be considered a design achievement as it makes the app layout nicer by allowing users to download a file once, then never again.
