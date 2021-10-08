@@ -181,6 +181,7 @@ class PlayActivity : AppCompatActivity(), ShakeDetector.Listener {
             saveFileOp()
             mediaPlayer!!.start()
             showVisualizer()
+            getSongEndTime()
         }
 
         skipNextButton.setOnClickListener {
@@ -202,6 +203,7 @@ class PlayActivity : AppCompatActivity(), ShakeDetector.Listener {
             saveFileOp()
             mediaPlayer!!.start()
             showVisualizer()
+            getSongEndTime()
         }
     }
     //Takes accelerometer data and shuffles songs if device is shook.
